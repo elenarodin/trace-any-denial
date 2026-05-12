@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:5173/)",
+      "Bash(curl -s http://localhost:5173/)",
+      "Bash(curl -s -o /dev/null -w \"HTTP %{http_code}\\\\n\" http://localhost:5173/)",
+      "Bash(lsof -ti:5173)",
+      "Bash(ps -p 4426 -o pid,command)",
+      "Bash(ps -p 55249 -o pid,command)",
+      "Bash(kill 4426)",
+      "mcp__Claude_Preview__preview_start"
+    ]
+  }
+}

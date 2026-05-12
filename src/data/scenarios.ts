@@ -1,0 +1,151 @@
+import type { Scenario } from "../logic/types";
+
+export const SCENARIOS: Scenario[] = [
+  {
+    id: "prior_authorization",
+    name: "Prior authorization denial",
+    shortLabel: "Prior auth",
+    summary:
+      "AI recommends denial for an outpatient imaging request based on a plan specific rule and missing clinical evidence. Reviewer queue is downstream of the recommendation.",
+    buyerPain:
+      "When a member or provider challenges the denial, the team must reconcile the model recommendation, the plan rule, and the reviewer disposition across three systems.",
+    defaults: {
+      scenarioType: "prior_authorization",
+      modelOutput: "Recommend denial — clinical evidence insufficient under plan rule PA-IMG-014",
+      decisionId: "DCN-PA-2026-05-09-44218",
+      modelVersion: "pa-denial-classifier-v3.7.1",
+      inputSnapshotAvailable: true,
+      featurePayloadAvailable: false,
+      policyRuleVersion: "",
+      humanReviewerId: "RV-7741",
+      overrideReason: "",
+      overrideStorage: "notes_field",
+      auditLogEntry: true,
+      workflowSystem: "UM workflow platform",
+      ticketingSystem: "Provider ticketing system",
+      appealsLinkage: false,
+      reconstructWithin10Minutes: false,
+      knownSystemsInvolved: [
+        "Model service",
+        "UM workflow platform",
+        "Plan rules engine",
+        "Provider ticketing system",
+      ],
+      recordsStorage: ["workflow_platform", "scattered_logs", "ticketing_system"],
+    },
+  },
+  {
+    id: "claims_ai",
+    name: "Claims AI denial",
+    shortLabel: "Claims AI",
+    summary:
+      "Model flags a claim as likely non payable. The plan specific policy rule and the reviewer override live in separate systems and are not joined to the model inference.",
+    buyerPain:
+      "Engineering can show the model output and the rule that exists today, but cannot show what rule was applied at the moment the claim was denied.",
+    defaults: {
+      scenarioType: "claims_ai",
+      modelOutput: "Flag as likely non payable — coding inconsistency, plan rule CL-NPB-203",
+      decisionId: "DCN-CL-2026-05-04-77104",
+      modelVersion: "claims-npb-classifier-v2.4.0",
+      inputSnapshotAvailable: true,
+      featurePayloadAvailable: true,
+      policyRuleVersion: "",
+      humanReviewerId: "",
+      overrideReason: "Manual approval after coder review",
+      overrideStorage: "ticketing_system",
+      auditLogEntry: false,
+      workflowSystem: "Claims processing platform",
+      ticketingSystem: "Coder review queue",
+      appealsLinkage: false,
+      reconstructWithin10Minutes: false,
+      knownSystemsInvolved: [
+        "Claims processing platform",
+        "Model service",
+        "Policy rules engine",
+        "Coder review queue",
+      ],
+      recordsStorage: [
+        "workflow_platform",
+        "ticketing_system",
+        "scattered_logs",
+        "data_warehouse",
+      ],
+    },
+  },
+  {
+    id: "ur_nurse_review",
+    name: "Utilization management nurse review",
+    shortLabel: "UR nurse review",
+    summary:
+      "UR nurse overrides the AI recommendation. The override reason is captured in workflow notes and never linked to the model inference event.",
+    buyerPain:
+      "From the model side, the review never happened. The clinical override looks unattributed in the lineage and increases CMS exposure.",
+    defaults: {
+      scenarioType: "ur_nurse_review",
+      modelOutput: "Recommend continued stay denial — criteria not met under MCG criteria mapping",
+      decisionId: "DCN-UR-2026-04-27-21902",
+      modelVersion: "ur-stay-classifier-v1.9.2",
+      inputSnapshotAvailable: true,
+      featurePayloadAvailable: false,
+      policyRuleVersion: "MCG-CS-2025.1",
+      humanReviewerId: "",
+      overrideReason: "Clinical judgment — comorbidity not captured in features",
+      overrideStorage: "notes_field",
+      auditLogEntry: true,
+      workflowSystem: "UR workflow platform",
+      ticketingSystem: "Clinical notes module",
+      appealsLinkage: false,
+      reconstructWithin10Minutes: false,
+      knownSystemsInvolved: [
+        "UR workflow platform",
+        "Model service",
+        "Clinical notes module",
+        "Policy rules engine",
+      ],
+      recordsStorage: ["workflow_platform", "notes_field", "scattered_logs"],
+    },
+  },
+  {
+    id: "appeals_replay",
+    name: "Appeals replay failure",
+    shortLabel: "Appeals replay",
+    summary:
+      "Member appeals a denial. The organization cannot reproduce the exact model version, input snapshot, and policy rule used at the original decision time.",
+    buyerPain:
+      "The appeals team defaults to overturning the denial because the original decision cannot be defended. Operationally this looks like a precision problem, but it is a traceability problem.",
+    defaults: {
+      scenarioType: "appeals_replay",
+      modelOutput: "Recommend denial — service not medically necessary under plan rule AP-MN-119",
+      decisionId: "DCN-AP-2026-04-18-58110",
+      modelVersion: "",
+      inputSnapshotAvailable: false,
+      featurePayloadAvailable: false,
+      policyRuleVersion: "",
+      humanReviewerId: "RV-3318",
+      overrideReason: "",
+      overrideStorage: "unknown",
+      auditLogEntry: false,
+      workflowSystem: "Appeals workflow platform",
+      ticketingSystem: "Member services ticketing",
+      appealsLinkage: false,
+      reconstructWithin10Minutes: false,
+      knownSystemsInvolved: [
+        "Appeals workflow platform",
+        "Model service",
+        "Policy rules engine",
+        "Member services ticketing",
+        "Data warehouse",
+      ],
+      recordsStorage: [
+        "workflow_platform",
+        "ticketing_system",
+        "data_warehouse",
+        "scattered_logs",
+      ],
+    },
+  },
+];
+
+export const SCENARIO_BY_ID = Object.fromEntries(
+  SCENARIOS.map((s) => [s.id, s]),
+) as Record<Scenario["id"], Scenario>;
