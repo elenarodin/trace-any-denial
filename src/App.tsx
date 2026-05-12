@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Analytics } from "@vercel/analytics/react";
 import { ScenarioSelector } from "./components/ScenarioSelector";
 import { DiagnosticForm } from "./components/DiagnosticForm";
 import { DiagnosticReportView } from "./components/DiagnosticReport";
@@ -110,6 +111,7 @@ export function App() {
           <span>Synthetic data only. Not a compliance certification tool.</span>
         </div>
       </footer>
+      <Analytics />
     </div>
   );
 }
